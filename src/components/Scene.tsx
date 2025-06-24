@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber';
-import { CanvasLoader, CustomShader, GuiProvider } from '@/components';
+import { CanvasLoader, Galaxy, GuiProvider } from '@/components';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { Suspense } from 'react';
@@ -19,20 +19,19 @@ const Scene = () => {
           shadowMapType: THREE.PCFSoftShadowMap,
         }}
       >
-        <color attach="background" args={['#0a0a0f']} />
+        <color attach="background" args={['#000']} />
         <ambientLight intensity={3} color="#445566" />
-        <fog attach="fog" args={['#101520', 6, 15]} />
         <OrbitControls
           enableDamping
           enablePan={false}
-          minPolarAngle={Math.PI / 4}
-          maxPolarAngle={Math.PI / 2.05}
-          minDistance={7}
-          maxDistance={14}
+          // minPolarAngle={Math.PI / 4}
+          // maxPolarAngle={Math.PI / 2.05}
+          // minDistance={7}
+          // maxDistance={14}
         />
 
         <Suspense fallback={<CanvasLoader />} name={'Loader'}>
-          <CustomShader />
+          <Galaxy />
         </Suspense>
       </Canvas>
     </GuiProvider>
