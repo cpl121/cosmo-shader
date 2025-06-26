@@ -4,36 +4,41 @@ import { useFrame, useThree } from '@react-three/fiber';
 import vert from '@/shaders/basic.vert';
 import frag from '@/shaders/basic.frag';
 
-const Galaxy = () => {
+const Galaxy = ({
+  position,
+  pRadius,
+  pCount,
+}: {
+  position: [x: number, y: number, z: number];
+  pRadius: number;
+  pCount: number;
+}) => {
   const pointsRef = useRef(null);
   const { gl } = useThree();
 
   const parameters = {
-    count: 200000,
-    size: 0.005,
-    radius: 5,
-    branches: 3,
-    spin: 1,
-    randomness: 0.5,
-    randomnessPower: 3,
-    insideColor: '#ff6030',
-    outsideColor: '#1b3984',
+    branches: 4,
+    spin: 2,
+    randomness: 0.2,
+    randomnessPower: 1.75,
+    insideColor: '#bc4b00',
+    outsideColor: '#38ffb9',
   };
 
   const { geometry, uniforms } = useMemo(() => {
     const geometry = new THREE.BufferGeometry();
 
-    const positions = new Float32Array(parameters.count * 3);
-    const colors = new Float32Array(parameters.count * 3);
-    const scales = new Float32Array(parameters.count);
-    const randomness = new Float32Array(parameters.count * 3);
+    const positions = new Float32Array(pCount * 3);
+    const colors = new Float32Array(pCount * 3);
+    const scales = new Float32Array(pCount);
+    const randomness = new Float32Array(pCount * 3);
 
     const insideColor = new THREE.Color(parameters.insideColor);
     const outsideColor = new THREE.Color(parameters.outsideColor);
 
-    for (let i = 0; i < parameters.count; i++) {
+    for (let i = 0; i < pCount; i++) {
       const i3 = i * 3;
-      const radius = Math.random() * parameters.radius;
+      const radius = Math.random() * pRadius;
       const branchAngle = ((i % parameters.branches) / parameters.branches) * Math.PI * 2;
       const spinAngle = radius * parameters.spin;
 
@@ -57,7 +62,7 @@ const Galaxy = () => {
       positions[i3 + 1] = randomY;
       positions[i3 + 2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
 
-      const mixedColor = insideColor.clone().lerp(outsideColor, radius / parameters.radius);
+      const mixedColor = insideColor.clone().lerp(outsideColor, radius / pRadius);
       colors[i3] = mixedColor.r;
       colors[i3 + 1] = mixedColor.g;
       colors[i3 + 2] = mixedColor.b;
@@ -79,7 +84,7 @@ const Galaxy = () => {
     };
 
     return { geometry, uniforms };
-  }, [gl, parameters]);
+  }, [gl, parameters, pCount, pRadius]);
 
   useFrame((state) => {
     uniforms.uTime.value = state.clock.elapsedTime;
@@ -88,7 +93,7 @@ const Galaxy = () => {
   console.log(geometry.attributes.position.count);
 
   return (
-    <points ref={pointsRef} geometry={geometry}>
+    <points ref={pointsRef} geometry={geometry} position={position}>
       <shaderMaterial
         depthWrite={false}
         blending={THREE.AdditiveBlending}
